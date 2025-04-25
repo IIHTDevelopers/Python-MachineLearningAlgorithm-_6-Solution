@@ -15,21 +15,21 @@ class TestHeartDiseaseModel(unittest.TestCase):
         self.test_obj = TestUtils()
         self.df = heart.load_heart_disease_data()
 
-    def test_csv_loaded_correctly(self):
+    def test_heart_csv_loaded_correctly(self):
         try:
             if not self.df.empty and len(self.df) == 303:
-                self.test_obj.yakshaAssert("TestCSVLoadedCorrectly", True, "functional")
-                print("TestCSVLoadedCorrectly = Passed")
+                self.test_obj.yakshaAssert("TestCSVLoadedCorrectlyheart", True, "functional")
+                print("TestCSVLoadedCorrectlyheart = Passed")
             else:
-                self.test_obj.yakshaAssert("TestCSVLoadedCorrectly", False, "functional")
-                print("TestCSVLoadedCorrectly = Failed")
+                self.test_obj.yakshaAssert("TestCSVLoadedCorrectlyheart", False, "functional")
+                print("TestCSVLoadedCorrectlyheart = Failed")
         except Exception:
-            self.test_obj.yakshaAssert("TestCSVLoadedCorrectly", False, "functional")
-            print("TestCSVLoadedCorrectly = Failed")
+            self.test_obj.yakshaAssert("TestCSVLoadedCorrectlyheart", False, "functional")
+            print("TestCSVLoadedCorrectlyheart = Failed")
 
     def test_preprocessing_separates_target(self):
         try:
-            X, y = heart.preprocess_data(self.df)
+            X, y = heart.preprocess_heart_data(self.df)
             print(f"X columns: {X.columns}")
             print(f"y name: {y.name}")
             if not X.empty and not y.empty and "target" not in X.columns:
@@ -45,8 +45,8 @@ class TestHeartDiseaseModel(unittest.TestCase):
 
     def test_split_data_counts(self):
         try:
-            X, y = heart.preprocess_data(self.df)
-            X_train, X_test, y_train, y_test = heart.split_data(X, y)
+            X, y = heart.preprocess_heart_data(self.df)
+            X_train, X_test, y_train, y_test = heart.split_heart_data(X, y)
             print(f"X_train length: {len(X_train)}, X_test length: {len(X_test)}")
             if len(X_train) == 242 and len(X_test) == 61:
                 self.test_obj.yakshaAssert("TestSplitDataCounts", True, "functional")
@@ -61,8 +61,8 @@ class TestHeartDiseaseModel(unittest.TestCase):
 
     def test_model_trains_and_saves(self):
         try:
-            X, y = heart.preprocess_data(self.df)
-            X_train, X_test, y_train, y_test = heart.split_data(X, y)
+            X, y = heart.preprocess_heart_data(self.df)
+            X_train, X_test, y_train, y_test = heart.split_heart_data(X, y)
             model = heart.train_model(heart.create_model(), X_train, y_train)
             heart.save_model(model, "random_forest_heart_model.pkl")
             print(f"Model file exists: {os.path.exists('random_forest_heart_model.pkl')}")
@@ -79,8 +79,8 @@ class TestHeartDiseaseModel(unittest.TestCase):
 
     def test_prediction_for_first_patient(self):
         try:
-            X, y = heart.preprocess_data(self.df)
-            X_train, X_test, y_train, y_test = heart.split_data(X, y)
+            X, y = heart.preprocess_heart_data(self.df)
+            X_train, X_test, y_train, y_test = heart.split_heart_data(X, y)
             model = heart.train_model(heart.create_model(), X_train, y_train)
 
             first_patient = self.df.drop(columns=["target"]).iloc[[0]]
@@ -117,7 +117,7 @@ class TestChickenDiseaseModel(unittest.TestCase):
         self.test_obj = TestUtils()
         self.df = chicken.load_chicken_disease_data()
 
-    def test_csv_loaded_correctly(self):
+    def test_chicken_csv_loaded_correctly(self):
         try:
             if not self.df.empty and len(self.df) == 1000:
                 self.test_obj.yakshaAssert("TestCSVLoadedCorrectly", True, "functional")
@@ -144,7 +144,7 @@ class TestChickenDiseaseModel(unittest.TestCase):
 
     def test_preprocessing_output(self):
         try:
-            X, y, df_encoded = chicken.preprocess_data(self.df)
+            X, y, df_encoded = chicken.preprocess_chicken_data(self.df)
             if "Disease Predicted_Healthy" in y.name and not X.empty:
                 self.test_obj.yakshaAssert("TestPreprocessingOutput", True, "functional")
                 print("TestPreprocessingOutput = Passed")
@@ -157,8 +157,8 @@ class TestChickenDiseaseModel(unittest.TestCase):
 
     def test_model_trains_successfully(self):
         try:
-            X, y, df_encoded = chicken.preprocess_data(self.df)
-            X_train, X_test, y_train, y_test = chicken.split_data(X, y)
+            X, y, df_encoded = chicken.preprocess_chicken_data(self.df)
+            X_train, X_test, y_train, y_test = chicken.split_chicken_data(X, y)
             model = chicken.create_and_train_model(X_train, y_train)
             if model and hasattr(model, "predict"):
                 self.test_obj.yakshaAssert("TestModelTrainsSuccessfully", True, "functional")
@@ -172,7 +172,7 @@ class TestChickenDiseaseModel(unittest.TestCase):
 
     def test_entropy_calculation(self):
         try:
-            _, y, _ = chicken.preprocess_data(self.df)
+            _, y, _ = chicken.preprocess_chicken_data(self.df)
             value_counts = y.value_counts(normalize=True)
             entropy = -sum(p * np.log2(p) for p in value_counts if p > 0)
 
