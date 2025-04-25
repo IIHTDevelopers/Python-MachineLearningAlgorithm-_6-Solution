@@ -13,7 +13,7 @@ def load_heart_disease_data():
     return df
 
 # 2. Preprocess data
-def preprocess_data(df):
+def preprocess_heart_data(df):
     print("🛠️ Preprocessing data...")
     X = df.drop("target", axis=1)
     y = df["target"]
@@ -21,7 +21,7 @@ def preprocess_data(df):
     return X, y
 
 # 3. Split the data
-def split_data(X, y, test_size=0.2):
+def split_heart_data(X, y, test_size=0.2):
     print("✂️ Splitting data...")
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
     print(f"✅ Train: {len(X_train)}, Test: {len(X_test)}\n")
@@ -63,8 +63,8 @@ def make_prediction(model, X_sample, source_label=""):
 
 # --- Pipeline Execution ---
 df = load_heart_disease_data()
-X, y = preprocess_data(df)
-X_train, X_test, y_train, y_test = split_data(X, y)
+X, y = preprocess_heart_data(df)
+X_train, X_test, y_train, y_test = split_heart_data(X, y)
 model = create_model()
 trained_model = train_model(model, X_train, y_train)
 save_model(trained_model)
