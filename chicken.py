@@ -27,7 +27,7 @@ def perform_eda_on_age(df):
 
 
 # 3. Preprocess data (Categorical to numerical conversion)
-def preprocess_data(df):
+def preprocess_chicken_data(df):
     print("🛠️ Preprocessing data...")
     # Convert categorical features to dummy variables
     df = pd.get_dummies(df, drop_first=True)
@@ -42,7 +42,7 @@ def preprocess_data(df):
 
 
 # 4. Split the data
-def split_data(X, y, test_size=0.2):
+def split_chicken_data(X, y, test_size=0.2):
     print("✂️ Splitting data...")
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
     print(f"✅ Train: {len(X_train)}, Test: {len(X_test)}\n")
@@ -80,8 +80,8 @@ def calculate_entropy(y):
 # --- Pipeline Execution ---
 df = load_chicken_disease_data()
 perform_eda_on_age(df)  # ✅ EDA before preprocessing
-X, y, df_encoded = preprocess_data(df)
-X_train, X_test, y_train, y_test = split_data(X, y)
+X, y, df_encoded = preprocess_chicken_data(df)
+X_train, X_test, y_train, y_test = split_chicken_data(X, y)
 model = create_and_train_model(X_train, y_train)
 
 # Save model
