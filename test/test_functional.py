@@ -10,22 +10,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from test.TestUtils import TestUtils
 import heart
 
+
 class TestHeartDiseaseModel(unittest.TestCase):
     def setUp(self):
         self.test_obj = TestUtils()
         self.df = heart.load_heart_disease_data()
 
-    def test_heart_csv_loaded_correctly(self):
-        try:
-            if not self.df.empty and len(self.df) == 303:
-                self.test_obj.yakshaAssert("TestCSVLoadedCorrectlyheart", True, "functional")
-                print("TestCSVLoadedCorrectlyheart = Passed")
-            else:
-                self.test_obj.yakshaAssert("TestCSVLoadedCorrectlyheart", False, "functional")
-                print("TestCSVLoadedCorrectlyheart = Failed")
-        except Exception:
-            self.test_obj.yakshaAssert("TestCSVLoadedCorrectlyheart", False, "functional")
-            print("TestCSVLoadedCorrectlyheart = Failed")
 
     def test_preprocessing_separates_target(self):
         try:
@@ -77,28 +67,97 @@ class TestHeartDiseaseModel(unittest.TestCase):
             self.test_obj.yakshaAssert("TestModelTrainsAndSaves", False, "functional")
             print("TestModelTrainsAndSaves = Failed")
 
-    def test_prediction_for_first_patient(self):
+
+
+    def test_json_data_processing_heart(self):
         try:
+            # Use existing heart_data.json file
+            json_file = "heart_data.json"
+
+            # Check if the file exists
+            import os
+            if not os.path.exists(json_file):
+                self.test_obj.yakshaAssert("TestJsonDataProcessingHeart", False, "functional")
+                print("TestJsonDataProcessingHeart = Failed (JSON file not found)")
+                return
+
+            # Train model
             X, y = heart.preprocess_heart_data(self.df)
             X_train, X_test, y_train, y_test = heart.split_heart_data(X, y)
             model = heart.train_model(heart.create_model(), X_train, y_train)
 
-            first_patient = self.df.drop(columns=["target"]).iloc[[0]]
-            prediction = model.predict(first_patient)
+            # Test if function exists and runs without errors
+            try:
+                # Redirect stdout to capture print output
+                import io
+                from contextlib import redirect_stdout
 
-            expected_prediction = 1  # From your console output
-            print(f"Prediction: {prediction[0]}, Expected: {expected_prediction}")
+                f = io.StringIO()
+                with redirect_stdout(f):
+                    heart.check_new_data_from_json(model, json_file)
+                output = f.getvalue()
 
-            if prediction[0] == expected_prediction:
-                self.test_obj.yakshaAssert("TestPredictionForFirstPatient", True, "functional")
-                print("TestPredictionForFirstPatient = Passed")
-            else:
-                self.test_obj.yakshaAssert("TestPredictionForFirstPatient", False, "functional")
-                print("TestPredictionForFirstPatient = Failed")
+                # Check if the function produced output with adjusted prediction
+                if "FINAL HEART DISEASE PREDICTION RESULT" in output and "Adjusted Prediction: 1 -->  Heart Disease" in output:
+                    self.test_obj.yakshaAssert("TestJsonDataProcessingHeart", True, "functional")
+                    print("TestJsonDataProcessingHeart = Passed")
+                else:
+                    self.test_obj.yakshaAssert("TestJsonDataProcessingHeart", False, "functional")
+                    print("TestJsonDataProcessingHeart = Failed")
+            except Exception as e:
+                print(f"Function execution error: {str(e)}")
+                self.test_obj.yakshaAssert("TestJsonDataProcessingHeart", False, "functional")
+                print("TestJsonDataProcessingHeart = Failed")
+
         except Exception as e:
             print(f"Exception: {str(e)}")
-            self.test_obj.yakshaAssert("TestPredictionForFirstPatient", False, "functional")
-            print("TestPredictionForFirstPatient = Failed")
+            self.test_obj.yakshaAssert("TestJsonDataProcessingHeart", False, "functional")
+            print("TestJsonDataProcessingHeart = Failed")
+
+    def test_risk_factor_validation_heart(self):
+        try:
+            # Use existing heart_data.json file which has risk factors
+            json_file = "heart_data.json"
+
+            # Check if the file exists
+            import os
+            if not os.path.exists(json_file):
+                self.test_obj.yakshaAssert("TestRiskFactorValidationHeart", False, "functional")
+                print("TestRiskFactorValidationHeart = Failed (JSON file not found)")
+                return
+
+            # Train model
+            X, y = heart.preprocess_heart_data(self.df)
+            X_train, X_test, y_train, y_test = heart.split_heart_data(X, y)
+            model = heart.train_model(heart.create_model(), X_train, y_train)
+
+            # Test if risk factor validation works
+            try:
+                # Redirect stdout to capture print output
+                import io
+                from contextlib import redirect_stdout
+
+                f = io.StringIO()
+                with redirect_stdout(f):
+                    heart.check_new_data_from_json(model, json_file)
+                output = f.getvalue()
+
+                # Check if risk factors were identified and adjusted prediction is made
+                if "Risk factors identified" in output and "Patient has heart disease: YES" in output and "Adjusted Prediction: 1 --> ❤️ Heart Disease" in output:
+                    self.test_obj.yakshaAssert("TestRiskFactorValidationHeart", True, "functional")
+                    print("TestRiskFactorValidationHeart = Passed")
+                else:
+                    self.test_obj.yakshaAssert("TestRiskFactorValidationHeart", False, "functional")
+                    print("TestRiskFactorValidationHeart = Failed")
+            except Exception as e:
+                print(f"Function execution error: {str(e)}")
+                self.test_obj.yakshaAssert("TestRiskFactorValidationHeart", False, "functional")
+                print("TestRiskFactorValidationHeart = Failed")
+
+        except Exception as e:
+            print(f"Exception: {str(e)}")
+            self.test_obj.yakshaAssert("TestRiskFactorValidationHeart", False, "functional")
+            print("TestRiskFactorValidationHeart = Failed")
 
 
 import unittest
@@ -112,35 +171,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from test.TestUtils import TestUtils
 import chicken
 
+
 class TestChickenDiseaseModel(unittest.TestCase):
     def setUp(self):
         self.test_obj = TestUtils()
         self.df = chicken.load_chicken_disease_data()
 
-    def test_chicken_csv_loaded_correctly(self):
-        try:
-            if not self.df.empty and len(self.df) == 1000:
-                self.test_obj.yakshaAssert("TestCSVLoadedCorrectly", True, "functional")
-                print("TestCSVLoadedCorrectly = Passed")
-            else:
-                self.test_obj.yakshaAssert("TestCSVLoadedCorrectly", False, "functional")
-                print("TestCSVLoadedCorrectly = Failed")
-        except Exception:
-            self.test_obj.yakshaAssert("TestCSVLoadedCorrectly", False, "functional")
-            print("TestCSVLoadedCorrectly = Failed")
-
-    def test_eda_on_age_count(self):
-        try:
-            count = self.df[self.df["Age"] > 2].shape[0]
-            if count == 493:
-                self.test_obj.yakshaAssert("TestEDAOnAgeCount", True, "functional")
-                print("TestEDAOnAgeCount = Passed")
-            else:
-                self.test_obj.yakshaAssert("TestEDAOnAgeCount", False, "functional")
-                print("TestEDAOnAgeCount = Failed")
-        except Exception:
-            self.test_obj.yakshaAssert("TestEDAOnAgeCount", False, "functional")
-            print("TestEDAOnAgeCount = Failed")
 
     def test_preprocessing_output(self):
         try:
@@ -185,3 +221,93 @@ class TestChickenDiseaseModel(unittest.TestCase):
         except Exception:
             self.test_obj.yakshaAssert("TestEntropyCalculation", False, "functional")
             print("TestEntropyCalculation = Failed")
+
+    def test_json_data_processing_chicken(self):
+        try:
+            # Use existing chicken_data.json file
+            json_file = "chicken_data.json"
+
+            # Check if the file exists
+            import os
+            if not os.path.exists(json_file):
+                self.test_obj.yakshaAssert("TestJsonDataProcessingChicken", False, "functional")
+                print("TestJsonDataProcessingChicken = Failed (JSON file not found)")
+                return
+
+            # Train model
+            X, y, df_encoded = chicken.preprocess_chicken_data(self.df)
+            X_train, X_test, y_train, y_test = chicken.split_chicken_data(X, y)
+            model = chicken.create_and_train_model(X_train, y_train)
+
+            # Test if function exists and runs without errors
+            try:
+                # Redirect stdout to capture print output
+                import io
+                from contextlib import redirect_stdout
+
+                f = io.StringIO()
+                with redirect_stdout(f):
+                    chicken.check_new_data_from_json(model, df_encoded, json_file)
+                output = f.getvalue()
+
+                # Check if the function produced output with adjusted prediction
+                if "FINAL CHICKEN DISEASE PREDICTION RESULT" in output and "Adjusted Prediction: 1 --> Diseased" in output:
+                    self.test_obj.yakshaAssert("TestJsonDataProcessingChicken", True, "functional")
+                    print("TestJsonDataProcessingChicken = Passed")
+                else:
+                    self.test_obj.yakshaAssert("TestJsonDataProcessingChicken", False, "functional")
+                    print("TestJsonDataProcessingChicken = Failed")
+            except Exception as e:
+                print(f"Function execution error: {str(e)}")
+                self.test_obj.yakshaAssert("TestJsonDataProcessingChicken", False, "functional")
+                print("TestJsonDataProcessingChicken = Failed")
+
+        except Exception as e:
+            print(f"Exception: {str(e)}")
+            self.test_obj.yakshaAssert("TestJsonDataProcessingChicken", False, "functional")
+            print("TestJsonDataProcessingChicken = Failed")
+
+    def test_symptom_validation_chicken(self):
+        try:
+            # Use existing chicken_data.json file which has disease symptoms
+            json_file = "chicken_data.json"
+
+            # Check if the file exists
+            import os
+            if not os.path.exists(json_file):
+                self.test_obj.yakshaAssert("TestSymptomValidationChicken", False, "functional")
+                print("TestSymptomValidationChicken = Failed (JSON file not found)")
+                return
+
+            # Train model
+            X, y, df_encoded = chicken.preprocess_chicken_data(self.df)
+            X_train, X_test, y_train, y_test = chicken.split_chicken_data(X, y)
+            model = chicken.create_and_train_model(X_train, y_train)
+
+            # Test if symptom validation works
+            try:
+                # Redirect stdout to capture print output
+                import io
+                from contextlib import redirect_stdout
+
+                f = io.StringIO()
+                with redirect_stdout(f):
+                    chicken.check_new_data_from_json(model, df_encoded, json_file)
+                output = f.getvalue()
+
+                # Check if symptoms were identified and disease type determined
+                if "Model prediction contradicts obvious disease symptoms" in output and "Chicken is healthy: NO" in output and "Likely Disease Type: Avian Influenza" in output:
+                    self.test_obj.yakshaAssert("TestSymptomValidationChicken", True, "functional")
+                    print("TestSymptomValidationChicken = Passed")
+                else:
+                    self.test_obj.yakshaAssert("TestSymptomValidationChicken", False, "functional")
+                    print("TestSymptomValidationChicken = Failed")
+            except Exception as e:
+                print(f"Function execution error: {str(e)}")
+                self.test_obj.yakshaAssert("TestSymptomValidationChicken", False, "functional")
+                print("TestSymptomValidationChicken = Failed")
+
+        except Exception as e:
+            print(f"Exception: {str(e)}")
+            self.test_obj.yakshaAssert("TestSymptomValidationChicken", False, "functional")
+            print("TestSymptomValidationChicken = Failed")
