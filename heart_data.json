@@ -1,0 +1,17 @@
+{
+  "patient": {
+    "age": 95,
+    "sex": 1,
+    "cp": 3,
+    "trestbps": 150,
+    "chol": 280,
+    "fbs": 1,
+    "restecg": 1,
+    "thalach": 100,
+    "exang": 1,
+    "oldpeak": 3.2,
+    "slope": 2,
+    "ca": 2,
+    "thal": 3
+  }
+}
